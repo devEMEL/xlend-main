@@ -311,7 +311,7 @@ export default function Home() {
 
               {decrypted[p.id] !== undefined ? (
                 <span className="text-green-400 font-semibold text-lg">
-                  {decrypted[p.id]}
+                  {decrypted[p.id]} CWETH
                 </span>
               ) : (
                 <span className="text-gray-400">
