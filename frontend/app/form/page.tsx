@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react";
 import { ethers } from "ethers";
+import Cweth from "@/abi/CWeth.json";
 import xlend from "@/abi/Xlend.json";
 import { useFhe } from "@/components/FheProvider";
 
@@ -24,32 +25,40 @@ export default function FormPage() {
 
 
     try {
-
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-
-      const contract = new ethers.Contract(xlend.address, xlend.abi, signer);
-      const totalSupply = ethers.parseUnits(supply, 6); 
       const userAddress = await signer.getAddress();
 
-      const encryptedInput = await fhe
-      .createEncryptedInput(xlend.address, userAddress)
-      .add64(BigInt(totalSupply))
-      .encrypt();
-    console.log({encryptedInput});
-    
-      const tx = await contract.createFund(totalSupply, encryptedInput.handles[0], encryptedInput.inputProof);
-      const receipt = await tx.wait();
+      const now = Math.floor(Date.now() / 1000);
+      const until = now + 7000;
+      const cwethContract = new ethers.Contract(Cweth.address, Cweth.abi, signer);
+      const setOperatorTx = await cwethContract.setOperator(xlend.address, BigInt(until));
+      const response = await setOperatorTx.wait();
+      console.log(response);
+      if(response) {
 
-      const event = receipt.logs.find((log: any) =>
-        log.fragment?.name === "FundCreated"
-      );
+        const contract = new ethers.Contract(xlend.address, xlend.abi, signer);
+        const totalSupply = ethers.parseUnits(supply, 6); 
 
-      const fundId = event?.args?.FundCreated
-        ? Number(event.args.fundId)
-        : null;
+        const encryptedInput = await fhe
+        .createEncryptedInput(xlend.address, userAddress)
+        .add64(BigInt(totalSupply))
+        .encrypt();
+      console.log({encryptedInput});
+      
+        const tx = await contract.createFund(totalSupply, encryptedInput.handles[0], encryptedInput.inputProof);
+        const receipt = await tx.wait();
 
-      setSuccessId(fundId);
+        const event = receipt.logs.find((log: any) =>
+          log.fragment?.name === "FundCreated"
+        );
+
+        const fundId = event?.args?.FundCreated
+          ? Number(event.args.fundId)
+          : null;
+
+        setSuccessId(fundId);
+    }
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Transaction failed");

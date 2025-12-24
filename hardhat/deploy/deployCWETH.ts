@@ -23,4 +23,4 @@ export default func;
 func.tags = ["cweth"];
 
 // npx hardhat deploy --network sepolia --tags cweth
-// cweth address = 0x277d57385768235e93f0B3fC67b48563Eb4A5a8c
+// cweth address = 0x8205Ef153F39B2c0eae577D8d2E90461049601AC

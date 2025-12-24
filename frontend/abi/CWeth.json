@@ -1,6 +1,6 @@
 {
 
-    "address": "0x277d57385768235e93f0B3fC67b48563Eb4A5a8c",
+    "address": "0x8205Ef153F39B2c0eae577D8d2E90461049601AC",
     "abi": [
       {
         "inputs": [],
@@ -226,6 +226,19 @@
         ],
         "name": "PublicDecryptionVerified",
         "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "RATE",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       },
       {
         "inputs": [

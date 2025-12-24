@@ -8,11 +8,10 @@ import {ERC7984} from "@openzeppelin/confidential-contracts/token/ERC7984/ERC798
 
 contract CWETH is ERC7984, ZamaEthereumConfig {
     uint8 private immutable DECIMALS;
-    uint256 private immutable RATE;
+    uint256 public constant RATE = 1e12;
 
     constructor() ERC7984("Confidential WETH", "cWETH", "") {
         DECIMALS = 6;
-        RATE = 1;
     }
 
 
@@ -27,10 +26,17 @@ contract CWETH is ERC7984, ZamaEthereumConfig {
 
 
     function deposit(address to) public payable {
-        uint256 amount = msg.value;
-        require(amount > rate(), "Amount must be greater than rate");
-        uint64 mintAmount = SafeCast.toUint64(amount / rate());
+        uint256 weiAmount = msg.value;
 
+        require(weiAmount >= RATE, "Amount too small");
+
+        // Convert wei (18 decimals) → token units (6 decimals)
+        uint256 tokenAmount = weiAmount / RATE;
+
+        // ERC7984 mint amount must fit uint64
+        uint64 mintAmount = SafeCast.toUint64(tokenAmount);
+
+        // Mint encrypted tokens
         _mint(to, FHE.asEuint64(mintAmount));
     }
 
